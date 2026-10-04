@@ -2,14 +2,14 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const { User } = require('./models');
 const { initializeApp, cert } = require('firebase-admin/app');
-const serviceAccount = require('./serviceAccountKey.json');
+const serviceAccount = require('/etc/secrets/serviceAccountKey.json');
 
 const SECRET = process.env.JWT_SECRET || 'gigconnect_secret';
 
 let admin = null;
 
 try {
- const serviceAccount = require('./serviceAccountKey.json');
+      const serviceAccount = require('/etc/secrets/serviceAccountKey.json');
 
   admin = initializeApp({
     credential: cert(serviceAccount)
