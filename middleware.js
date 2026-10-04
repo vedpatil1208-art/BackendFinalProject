@@ -14,8 +14,8 @@ const SECRET = process.env.JWT_SECRET || 'gigconnect_secret';
 
 let admin = null;
 
-try {
-      const serviceAccount = require('serviceAccountKey.json');
+try {const serviceAccountPath = fs.existsSync('/etc/secrets/serviceAccountKey.json')
+      
 
   admin = initializeApp({
     credential: cert(serviceAccount)
