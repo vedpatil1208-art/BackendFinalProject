@@ -9,9 +9,38 @@ const sendUser = (user) => ({ token: sign(user._id), user: { id: user._id, name:
 
 router.post('/auth/register', need('name', 'email', 'password'), async (req, res) => {
   const { name, email, password, role } = req.body;
-  if (await User.findOne({ email })) return res.status(400).json({ message: 'Email already used' });
-  const user = await User.create({ name, email, password: await bcrypt.hash(password, 10), role });
-  res.status(201).json(sendUser(user));
+
+  if (await User.findOne({ email })) {
+    return res.status(400).json({ message: 'Email already used' });
+  }
+
+  try {
+    const { getAuth } = require('firebase-admin/auth');
+
+    const firebaseUser = await getAuth().createUser({
+      email,
+      password,
+      displayName: name
+    });
+
+    const user = await User.create({
+      name,
+      email,
+      password: await bcrypt.hash(password, 10),
+      role
+    });
+
+    res.status(201).json({
+      message: 'User registered in Firebase and MongoDB',
+      firebaseUid: firebaseUser.uid,
+      ...sendUser(user)
+    });
+
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    });
+  }
 });
 
 router.post('/auth/login', need('email', 'password'), async (req, res) => {
